@@ -1,6 +1,29 @@
+import sys
+import numpy as np
+sys.setrecursionlimit(10000)
 
-def choose_pivot(array, length):
-    return array[0], 0
+input_data = list(map(int, open('./inputs/QuickSort.txt').readlines()))
+
+def choose_pivot1(array, index):
+    return array[index]
+
+def choose_pivot2(array, index):
+    return array[index - 1]
+
+def choose_pivot3(array, low, high):
+    first = array[low]
+    last = array[high - 1]
+    mid = (high - low) // 2
+    middle = array[mid]
+
+    median = np.median([first, middle, last])
+
+    if median == middle:
+        return middle, mid
+    elif median == first:
+        return first, low
+    else:
+        return last, high - 1
 
 
 def swap(array, i, j):
@@ -10,36 +33,32 @@ def swap(array, i, j):
 
 
 def partition(array, low, high):
-    pivot = array[low]
-    i, j = low + 1, high - 1 # initializes i to be first position after pivot and j to be last index
+    # pivot = choose_pivot1(array, low)
+    # pivot = choose_pivot2(array, high)
+    # swap(array, high - 1, low)
 
-    while True:
-        # If the current value we're looking at is larger than the pivot
-        # it's in the right place (right side of pivot) and we can move left,
-        # to the next element.
-        # We also need to make sure we haven't surpassed the low pointer, since that
-        # indicates we have already moved all the elements to their correct side of the pivot
-        while (i <= j and array[j] >= pivot):
-            j -= 1
+    pivot, pivot_ind = choose_pivot3(array, low, high)
+    swap(array, low, pivot_ind)
 
-        # Opposite process of the one above
-        while (i <= j and array[i] <= pivot):
+    i = low + 1
+
+    for j in range(low + 1, high):
+        if array[j] < pivot:
+            swap(array, i, j)
             i += 1
 
-        # We either found a value for both j and i that is out of order
-        # in which case we swap and continue
-        # or i is higher than j, in which case we exit the loop
-        # after swapping the pivot into its rightful position
-        if i <= j:
-            swap(array, i, j)
-            # The loop continues
-        else: # everything has been partitioned
-            swap(array, low, j)
-            return j
+    # Option 1: Swapping with first elemnt
+    swap(array, low, i - 1) # change this when changing where the pivot is not the first element
 
+    return i - 1
 
+total = 0
 def quicksort(array, low, high):
-    if high - low <= 1: return array
+    global total
+
+    if high == low: return array
+
+    total += (high - low) - 1
 
     part = partition(array, low, high)
 
@@ -48,5 +67,14 @@ def quicksort(array, low, high):
 
     return array
 
-test = [3, 8, 2, 5, 1, 4, 7, 6]
-print(quicksort(test, 0, len(test)))
+tests = [
+    [3, 2, 4, 1],
+    [4, 2, 3, 1],
+    input_data
+]
+
+for test in tests:
+    print(test[:10])
+    print("====>", quicksort(test, 0, len(test))[:10])
+    print("Took {} comparisons".format(total))
+    total = 0
