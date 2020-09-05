@@ -32,7 +32,6 @@ def partition(array):
     return pivot, i - 1
 
 def randomized_selection(array, length, i):
-    # TODO: There are still bugs here; it doesn't work and I don't know why.
     """
     Parameters:
         array (list)
